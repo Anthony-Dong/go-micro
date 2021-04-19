@@ -612,7 +612,7 @@ func (g *grpcServer) Register() error {
 	if len(config.Advertise) > 0 {
 		advt = config.Advertise
 	} else {
-		advt = config.Address
+		advt = config.Address // addr
 	}
 
 	if cnt := strings.Count(advt, ":"); cnt >= 1 {
@@ -672,6 +672,7 @@ func (g *grpcServer) Register() error {
 		return subscriberList[i].topic > subscriberList[j].topic
 	})
 
+	// 处理和订阅
 	endpoints := make([]*registry.Endpoint, 0, len(handlerList)+len(subscriberList))
 	for _, n := range handlerList {
 		endpoints = append(endpoints, g.handlers[n].Endpoints()...)
@@ -682,7 +683,7 @@ func (g *grpcServer) Register() error {
 	g.RUnlock()
 
 	service := &registry.Service{
-		Name:      config.Name,
+		Name:      config.Name, //
 		Version:   config.Version,
 		Nodes:     []*registry.Node{node},
 		Endpoints: endpoints,
@@ -847,6 +848,7 @@ func (g *grpcServer) Start() error {
 			ts, err = tls.Listen("tcp", config.Address, tc)
 			// otherwise just plain tcp listener
 		} else {
+			// 获取config中的addr
 			ts, err = net.Listen("tcp", config.Address)
 		}
 		if err != nil {
@@ -855,6 +857,7 @@ func (g *grpcServer) Start() error {
 	}
 
 	if g.opts.Context != nil {
+		// 配置最大的连接数
 		if c, ok := g.opts.Context.Value(maxConnKey{}).(int); ok && c > 0 {
 			ts = netutil.LimitListener(ts, c)
 		}

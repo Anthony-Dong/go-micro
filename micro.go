@@ -15,19 +15,19 @@ type serviceKey struct{}
 // and initialising services.
 type Service interface {
 	// The service name
-	Name() string
+	Name() string // 服务名称
 	// Init initialises options
-	Init(...Option)
+	Init(...Option) // 初始化
 	// Options returns the current options
-	Options() Options
+	Options() Options // 配置
 	// Client is used to call services
-	Client() client.Client
+	Client() client.Client // 客户端
 	// Server is for handling requests and events
-	Server() server.Server
+	Server() server.Server // server端
 	// Run the service
-	Run() error
+	Run() error // 启动
 	// The service implementation
-	String() string
+	String() string // 。。。。
 }
 
 // Function is a one time executing Service

@@ -176,7 +176,7 @@ func (s *service) Stop() error {
 
 func (s *service) Run() error {
 	// register the debug handler
-	s.opts.Server.Handle(
+	s.opts.Server.Handle( // 启动服务
 		s.opts.Server.NewHandler(
 			handler.NewHandler(s.opts.Client),
 			server.InternalHandler(true),

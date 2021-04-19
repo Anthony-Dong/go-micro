@@ -59,7 +59,7 @@ func (c *registrySelector) Select(service string, opts ...SelectOption) (Next, e
 
 	// apply the filters
 	for _, filter := range sopts.Filters {
-		services = filter(services)
+		services = filter(services) // 过滤所有的服务
 	}
 
 	// if there's nothing left, return
@@ -67,6 +67,7 @@ func (c *registrySelector) Select(service string, opts ...SelectOption) (Next, e
 		return nil, ErrNoneAvailable
 	}
 
+	// 进行lb
 	return sopts.Strategy(services), nil
 }
 

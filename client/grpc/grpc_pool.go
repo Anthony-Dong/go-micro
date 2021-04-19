@@ -176,7 +176,7 @@ func (p *pool) release(addr string, conn *poolConn, err error) {
 		//  3. conn is too old
 		now := time.Now().Unix()
 		if err != nil || sp.idle >= p.maxIdle || now-created > p.ttl {
-			removeConn(conn)
+			removeConn(conn)// 异常移除节点
 			p.Unlock()
 			conn.ClientConn.Close()
 			return

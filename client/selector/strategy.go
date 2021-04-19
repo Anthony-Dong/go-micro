@@ -20,6 +20,7 @@ func Random(services []*registry.Service) Next {
 		nodes = append(nodes, service.Nodes...)
 	}
 
+	// copy and return func
 	return func() (*registry.Node, error) {
 		if len(nodes) == 0 {
 			return nil, ErrNoneAvailable

@@ -111,6 +111,7 @@ func (g *grpcClient) call(ctx context.Context, node *registry.Node, req client.R
 		header = make(map[string]string)
 	}
 
+	// timeout
 	// set timeout in nanoseconds
 	header["timeout"] = fmt.Sprintf("%d", opts.RequestTimeout)
 	// set the content type for the request
@@ -142,10 +143,12 @@ func (g *grpcClient) call(ctx context.Context, node *registry.Node, req client.R
 		grpcDialOptions = append(grpcDialOptions, opts...)
 	}
 
+	// 获取连接
 	cc, err := g.pool.getConn(address, grpcDialOptions...)
 	if err != nil {
 		return errors.InternalServerError("go.micro.client", fmt.Sprintf("Error sending request: %v", err))
 	}
+	// 最后释放
 	defer func() {
 		// defer execution of release
 		g.pool.release(address, cc, grr)
@@ -160,10 +163,12 @@ func (g *grpcClient) call(ctx context.Context, node *registry.Node, req client.R
 		if opts := g.getGrpcCallOptions(); opts != nil {
 			grpcCallOptions = append(grpcCallOptions, opts...)
 		}
+		// invoke，核心逻辑
 		err := cc.Invoke(ctx, methodToGRPC(req.Service(), req.Endpoint()), req.Body(), rsp, grpcCallOptions...)
 		ch <- microError(err)
 	}()
 
+	// end
 	select {
 	case err := <-ch:
 		grr = err
@@ -390,6 +395,7 @@ func (g *grpcClient) Call(ctx context.Context, req client.Request, rsp interface
 		opt(&callOpts)
 	}
 
+	// 需要获取ip loadbalance
 	next, err := g.next(req, callOpts)
 	if err != nil {
 		return err
@@ -438,7 +444,9 @@ func (g *grpcClient) Call(ctx context.Context, req client.Request, rsp interface
 		}
 
 		// select next node
+		// 选择一个节点
 		node, err := next()
+		// 获取节点服务名称
 		service := req.Service()
 		if err != nil {
 			if err == selector.ErrNotFound {
